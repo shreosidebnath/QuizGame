@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENG 513 Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- username entry screen -->
+    <div id="username-screen" class="quiz-container">
+        <h2>Welcome to the Ultimate Quiz!</h2>
+        <p>Enter your username to begin:</p>
+        <input type="text" id="username-input" placeholder="Enter username" />
+        
+        <!-- category dropdown for user selection -->
+        <label for="category-select">Choose a category:</label>
+        <select id="category-select" class="category-select">
+            <option value="">Any Category</option>
+            <option value="9">General Knowledge</option>
+            <option value="10">Entertainment: Books</option>
+            <option value="11">Entertainment: Film</option>
+            <option value="12">Entertainment: Music</option>
+            <option value="17">Science & Nature</option>
+            <option value="18">Science: Computers</option>
+            <option value="21">Sports</option>
+            <option value="22">Geography</option>
+            <option value="23">History</option>
+        </select>
+        
+        <button id="start-btn" class="btn primary-btn">Start Quiz</button>
+    </div>
+
+    <!-- loading screen shown while fetching questions from API -->
+    <div id="loading-screen" class="quiz-container" style="display: none;">
+        <div class="loader"></div>
+        <p>Loading questions...</p>
+    </div>
+
+    <!-- error screen with retry option if API call fails -->
+    <div id="error-screen" class="quiz-container" style="display: none;">
+        <h2>Oops!</h2>
+        <p id="error-message">Failed to load questions. Please try again.</p>
+        <button id="retry-btn" class="btn primary-btn">Retry</button>
+        <button id="back-btn" class="btn secondary-btn">Back to Home</button>
+    </div>
+
+    <!-- main quiz screen where questions are displayed -->
+    <div id="quiz-screen" class="quiz-container" style="display: none;">
+        <div id="quiz">
+            <!-- header showing user info and progress -->
+            <div class="quiz-header">
+                <div class="user-info">
+                    <p><span id="current-user">Guest</span></p>
+                </div>
+                <div class="progress-info">
+                    <p id="question-progress">Question 1/12</p>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- question text and difficulty badge -->
+            <h2 id="question">Question Text</h2>
+            <p id="difficulty-indicator" class="difficulty"></p>
+            
+            <!-- answer buttons grid -->
+            <div id="answer-buttons" class="btn-grid"></div>
+            
+            <!-- score display -->
+            <div class="controls">
+                <p>Score: <span id="score">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- results screen showing final sore and history -->
+    <div id="results-screen" class="quiz-container" style="display: none;">
+        <h2>Quiz Complete!</h2>
+        <p id="final-score"></p>
+        
+        <!-- score history from localstorage -->
+        <div id="score-history">
+            <h3>Your Score History</h3>
+            <ul id="history-list"></ul>
+        </div>
+        
+        <button id="restart-btn" class="btn primary-btn">Take Another Quiz</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

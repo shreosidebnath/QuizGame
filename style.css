@@ -1,0 +1,551 @@
+/* main body black background and grid overlay */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #000000;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* grid pattern */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* main container */
+.quiz-container {
+    background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+    border: 1px solid #333333;
+    border-radius: 2px;
+    box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 25px 50px rgba(0, 0, 0, 0.5);
+    padding: 3rem;
+    width: 100%;
+    max-width: 650px;
+    animation: fadeIn 0.5s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* top highlight line */
+.quiz-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+    opacity: 0.3;
+}
+
+/* fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* username screen styles */
+#username-screen h2 {
+    color: #ffffff;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-size: 2rem;
+}
+
+#username-screen p {
+    text-align: center;
+    color: #999999;
+    margin-bottom: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+/* username input field */
+#username-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    margin: 1rem 0;
+    box-sizing: border-box;
+    transition: all 0.3s;
+    font-weight: 300;
+}
+
+#username-input:focus {
+    outline: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
+}
+
+#username-input::placeholder {
+    color: #666666;
+}
+
+/* category dropdown */
+.category-select {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    margin: 0.5rem 0 1.5rem 0;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 300;
+}
+
+.category-select:focus {
+    outline: none;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
+}
+
+.category-select option {
+    background: #000000;
+    color: #ffffff;
+}
+
+/* labels for inputs */
+label {
+    color: #999999;
+    font-weight: 400;
+    display: block;
+    margin-top: 1rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* button styles */
+.btn {
+    background: #0a0a0a;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    padding: 1.2rem;
+    font-size: 1rem;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 300;
+    position: relative;
+    overflow: hidden;
+}
+
+/* shine effect hover */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.btn:hover:not(:disabled) {
+    background: #1a1a1a;
+    border-color: #ffffff;
+    transform: translateX(2px);
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* primary action buttons */
+.primary-btn {
+    width: 100%;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.primary-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* secondary button */
+.secondary-btn {
+    width: 100%;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+    margin-top: 0.5rem;
+    text-align: center;
+    font-weight: 400;
+}
+
+.secondary-btn:hover {
+    background-color: #2a2a2a;
+    border-color: #ffffff;
+}
+
+/* loading spinner */
+.loader {
+    border: 2px solid #1a1a1a;
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 0.8s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loading-screen p {
+    text-align: center;
+    color: #999999;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* error screen */
+#error-screen {
+    text-align: center;
+}
+
+#error-screen h2 {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+#error-message {
+    color: #999999;
+    margin: 1.5rem 0;
+    font-weight: 300;
+}
+
+/* quiz header with user info and progress */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #333333;
+}
+
+.user-info {
+    background: #000000;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    font-weight: 400;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+.progress-info {
+    flex-grow: 1;
+}
+
+#question-progress {
+    color: #999999;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    text-align: right;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+}
+
+/* progress bar showing how far through quiz */
+.progress-bar {
+    width: 100%;
+    height: 2px;
+    background-color: #1a1a1a;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #ffffff;
+    transition: width 0.5s ease;
+}
+
+/* question text */
+#question {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    line-height: 1.6;
+    animation: slideIn 0.4s ease;
+    font-weight: 400;
+}
+
+/* slide in animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* difficulty badge */
+.difficulty {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+    border: 1px solid;
+}
+
+.difficulty.easy {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: #666666;
+}
+
+.difficulty.medium {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: #999999;
+}
+
+.difficulty.hard {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+/* 2x2 grid for answer buttons */
+.btn-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+/* correct answer styling */
+.btn.correct {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+    animation: pulse 0.5s ease;
+    font-weight: 600;
+}
+
+/* incorrect answer styling */
+.btn.incorrect {
+    background-color: #1a1a1a;
+    color: #666666;
+    border-color: #333333;
+    animation: shake 0.5s ease;
+}
+
+/* pulse animation for correct */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* shake animation for incorrect */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* score display box */
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    padding: 1.5rem;
+    background: #0a0a0a;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    letter-spacing: 2px;
+}
+
+/* results screen */
+#results-screen h2 {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+}
+
+#final-score {
+    font-size: 1.2rem;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: #0a0a0a;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    line-height: 1.8;
+    font-weight: 300;
+}
+
+.score-highlight {
+    color: #ffffff;
+    font-size: 1.8em;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+/* score history section */
+#score-history {
+    margin: 2rem 0;
+}
+
+#score-history h3 {
+    color: #ffffff;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+#history-list {
+    list-style: none;
+    padding: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* custom scrollbar for history */
+#history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#history-list::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+#history-list::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 3px;
+}
+
+/* individual history items */
+#history-list li {
+    background: #0a0a0a;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #333333;
+    border-radius: 2px;
+    transition: all 0.2s;
+    font-weight: 300;
+}
+
+#history-list li:hover {
+    border-color: #ffffff;
+    transform: translateX(5px);
+}
+
+/* mobile responsive styles */
+@media (max-width: 640px) {
+    .quiz-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .btn-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #question {
+        font-size: 1.2rem;
+    }
+
+    .quiz-header {
+        flex-direction: column;
+    }
+
+    #question-progress {
+        text-align: left;
+    }
+
+    .user-info {
+        width: 100%;
+        text-align: center;
+    }
+
+    #final-score {
+        font-size: 1.1rem;
+        padding: 1.5rem;
+    }
+
+    #username-screen h2,
+    #results-screen h2 {
+        font-size: 1.5rem;
+    }
+}
