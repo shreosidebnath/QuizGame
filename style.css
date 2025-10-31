@@ -10,8 +10,14 @@ body {
     padding: 1rem;
     box-sizing: border-box;
     position: relative;
+    overflow-x: hidden;
 }
 
+* {
+    box-sizing: border-box;
+}
+
+/* Ambient background gradients */
 body::before {
     content: '';
     position: fixed;
@@ -20,37 +26,98 @@ body::before {
     width: 100%;
     height: 100%;
     background: 
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+        radial-gradient(circle at 20% 50%, rgba(0, 255, 157, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: bgShift 20s ease-in-out infinite;
+}
+
+@keyframes bgShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Animated grid overlay */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
     background-size: 50px 50px;
     pointer-events: none;
     z-index: 0;
 }
 
 .quiz-container {
-    background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
-    border: 1px solid #333333;
-    border-radius: 2px;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
     box-shadow: 
         0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 25px 50px rgba(0, 0, 0, 0.5);
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
     padding: 3rem;
     width: 100%;
     max-width: 650px;
     animation: fadeIn 0.5s ease;
     position: relative;
     z-index: 1;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
+/* Evervault-style animated grid pattern */
 .quiz-container::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #ffffff, transparent);
-    opacity: 0.3;
+    inset: 0;
+    background: 
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%);
+    -webkit-mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.quiz-container:hover::before {
+    opacity: 1;
+}
+
+/* Spotlight effect */
+.quiz-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(6, 182, 212, 0.2),
+        transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border-radius: 24px;
+}
+
+.quiz-container:hover::after {
+    opacity: 1;
+}
+
+/* Top gradient line */
+.quiz-container > * {
+    position: relative;
+    z-index: 2;
 }
 
 @keyframes fadeIn {
@@ -71,11 +138,15 @@ body::before {
     font-weight: 700;
     letter-spacing: -0.5px;
     font-size: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 #username-screen p {
     text-align: center;
-    color: #999999;
+    color: #cccccc;
     margin-bottom: 1rem;
     font-weight: 300;
     letter-spacing: 0.5px;
@@ -85,10 +156,10 @@ body::before {
     width: 100%;
     padding: 1rem;
     font-size: 1rem;
-    background: #000000;
+    background: rgba(30, 30, 30, 0.8);
     color: #ffffff;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     margin: 1rem 0;
     box-sizing: border-box;
     transition: all 0.3s;
@@ -97,22 +168,25 @@ body::before {
 
 #username-input:focus {
     outline: none;
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: rgba(6, 182, 212, 0.6);
+    box-shadow: 
+        0 0 0 1px rgba(6, 182, 212, 0.4),
+        0 0 20px rgba(6, 182, 212, 0.3);
+    background: rgba(30, 30, 30, 0.95);
 }
 
 #username-input::placeholder {
-    color: #666666;
+    color: #888888;
 }
 
 .category-select {
     width: 100%;
     padding: 1rem;
     font-size: 1rem;
-    background: #000000;
+    background: rgba(30, 30, 30, 0.8);
     color: #ffffff;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     margin: 0.5rem 0 1.5rem 0;
     box-sizing: border-box;
     cursor: pointer;
@@ -122,17 +196,20 @@ body::before {
 
 .category-select:focus {
     outline: none;
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: rgba(6, 182, 212, 0.6);
+    box-shadow: 
+        0 0 0 1px rgba(6, 182, 212, 0.4),
+        0 0 20px rgba(6, 182, 212, 0.3);
+    background: rgba(30, 30, 30, 0.95);
 }
 
 .category-select option {
-    background: #000000;
+    background: #1a1a1a;
     color: #ffffff;
 }
 
 label {
-    color: #999999;
+    color: #bbbbbb;
     font-weight: 400;
     display: block;
     margin-top: 1rem;
@@ -142,18 +219,19 @@ label {
 }
 
 .btn {
-    background: #0a0a0a;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     padding: 1.2rem;
     font-size: 1rem;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     text-align: left;
     font-weight: 300;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(10px);
 }
 
 .btn::before {
@@ -163,7 +241,7 @@ label {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
     transition: left 0.5s;
 }
 
@@ -172,9 +250,12 @@ label {
 }
 
 .btn:hover:not(:disabled) {
-    background: #1a1a1a;
-    border-color: #ffffff;
-    transform: translateX(2px);
+    background: rgba(40, 40, 40, 0.95);
+    border-color: rgba(6, 182, 212, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 
+        0 0 25px rgba(6, 182, 212, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .btn:disabled {
@@ -184,45 +265,52 @@ label {
 
 .primary-btn {
     width: 100%;
-    background: #ffffff;
-    color: #000000;
-    border: none;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(236, 72, 153, 0.3));
+    color: #ffffff;
+    border: 1px solid rgba(6, 182, 212, 0.4);
     font-weight: 600;
     text-align: center;
     letter-spacing: 1px;
     text-transform: uppercase;
     font-size: 0.9rem;
+    box-shadow: 
+        0 0 25px rgba(6, 182, 212, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .primary-btn:hover {
-    background: #f0f0f0;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(236, 72, 153, 0.4));
+    border-color: rgba(6, 182, 212, 0.6);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 0 35px rgba(6, 182, 212, 0.5),
+        0 4px 12px rgba(6, 182, 212, 0.3);
 }
 
 .secondary-btn {
     width: 100%;
-    background-color: #1a1a1a;
+    background-color: rgba(40, 40, 40, 0.8);
     color: #ffffff;
-    border: 1px solid #333333;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     margin-top: 0.5rem;
     text-align: center;
     font-weight: 400;
 }
 
 .secondary-btn:hover {
-    background-color: #2a2a2a;
-    border-color: #ffffff;
+    background-color: rgba(50, 50, 50, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .loader {
-    border: 2px solid #1a1a1a;
-    border-top: 2px solid #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top: 2px solid #06b6d4;
     border-radius: 50%;
     width: 50px;
     height: 50px;
     animation: spin 0.8s linear infinite;
     margin: 2rem auto;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
 }
 
 @keyframes spin {
@@ -232,7 +320,7 @@ label {
 
 #loading-screen p {
     text-align: center;
-    color: #999999;
+    color: #cccccc;
     font-size: 1rem;
     font-weight: 300;
     letter-spacing: 1px;
@@ -245,10 +333,14 @@ label {
 #error-screen h2 {
     color: #ffffff;
     font-weight: 700;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 #error-message {
-    color: #999999;
+    color: #cccccc;
     margin: 1.5rem 0;
     font-weight: 300;
 }
@@ -260,26 +352,33 @@ label {
     margin-bottom: 2rem;
     gap: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #333333;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .user-info {
-    background: #000000;
+    background: rgba(30, 30, 30, 0.8);
     color: #ffffff;
     padding: 0.5rem 1rem;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    border-radius: 12px;
     font-weight: 400;
     flex-shrink: 0;
     letter-spacing: 0.5px;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .progress-info {
     flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 #question-progress {
-    color: #999999;
+    color: #bbbbbb;
     font-weight: 400;
     margin-bottom: 0.5rem;
     text-align: right;
@@ -289,16 +388,18 @@ label {
 
 .progress-bar {
     width: 100%;
-    height: 2px;
-    background-color: #1a1a1a;
-    border-radius: 0;
+    height: 4px;
+    background-color: rgba(40, 40, 40, 0.9);
+    border-radius: 2px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .progress-fill {
     height: 100%;
-    background: #ffffff;
+    background: linear-gradient(90deg, #06b6d4, #ec4899);
     transition: width 0.5s ease;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
 }
 
 #question {
@@ -324,30 +425,34 @@ label {
 .difficulty {
     display: inline-block;
     padding: 0.4rem 1rem;
-    border-radius: 2px;
+    border-radius: 8px;
     font-size: 0.7rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
     letter-spacing: 2px;
     border: 1px solid;
+    backdrop-filter: blur(10px);
 }
 
 .difficulty.easy {
-    background-color: transparent;
-    color: #ffffff;
-    border-color: #666666;
+    background: rgba(0, 255, 157, 0.1);
+    color: #00ff9d;
+    border-color: rgba(0, 255, 157, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
 }
 
 .difficulty.medium {
-    background-color: transparent;
-    color: #ffffff;
-    border-color: #999999;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
 }
 
 .difficulty.hard {
-    background-color: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
 .btn-grid {
@@ -358,26 +463,32 @@ label {
 }
 
 .btn.correct {
-    background-color: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
-    animation: pulse 0.5s ease;
+    background: rgba(0, 255, 157, 0.2);
+    color: #00ff9d;
+    border-color: rgba(0, 255, 157, 0.5);
+    animation: pulseGreen 0.5s ease;
     font-weight: 600;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 157, 0.4),
+        inset 0 0 20px rgba(0, 255, 157, 0.1);
 }
 
 .btn.incorrect {
-    background-color: #1a1a1a;
-    color: #666666;
-    border-color: #333333;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
     animation: shake 0.5s ease;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
-@keyframes pulse {
+@keyframes pulseGreen {
     0%, 100% {
         transform: scale(1);
+        box-shadow: 0 0 30px rgba(0, 255, 157, 0.4);
     }
     50% {
         transform: scale(1.02);
+        box-shadow: 0 0 40px rgba(0, 255, 157, 0.6);
     }
 }
 
@@ -401,10 +512,13 @@ label {
     font-weight: 700;
     color: #ffffff;
     padding: 1.5rem;
-    background: #0a0a0a;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    border-radius: 12px;
     letter-spacing: 2px;
+    box-shadow: 
+        0 0 25px rgba(6, 182, 212, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 #results-screen h2 {
@@ -414,6 +528,10 @@ label {
     font-weight: 700;
     font-size: 2rem;
     letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 #final-score {
@@ -422,11 +540,14 @@ label {
     text-align: center;
     margin-bottom: 2rem;
     padding: 2rem;
-    background: #0a0a0a;
-    border: 1px solid #333333;
-    border-radius: 2px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    border-radius: 16px;
     line-height: 1.8;
     font-weight: 300;
+    box-shadow: 
+        0 0 30px rgba(6, 182, 212, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .score-highlight {
@@ -434,6 +555,11 @@ label {
     font-size: 1.8em;
     font-weight: 700;
     letter-spacing: -1px;
+    background: linear-gradient(135deg, #06b6d4, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
 }
 
 #score-history {
@@ -459,62 +585,208 @@ label {
 }
 
 #history-list::-webkit-scrollbar-track {
-    background: #0a0a0a;
-}
-
-#history-list::-webkit-scrollbar-thumb {
-    background: #333333;
+    background: rgba(30, 30, 30, 0.8);
     border-radius: 3px;
 }
 
+#history-list::-webkit-scrollbar-thumb {
+    background: rgba(6, 182, 212, 0.6);
+    border-radius: 3px;
+}
+
+#history-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(6, 182, 212, 0.8);
+}
+
 #history-list li {
-    background: #0a0a0a;
+    background: rgba(30, 30, 30, 0.8);
     padding: 1rem;
     margin-bottom: 0.75rem;
-    border: 1px solid #333333;
-    border-radius: 2px;
-    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s;
     font-weight: 300;
+    backdrop-filter: blur(10px);
 }
 
 #history-list li:hover {
-    border-color: #ffffff;
+    border-color: rgba(6, 182, 212, 0.6);
     transform: translateX(5px);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
+    background: rgba(35, 35, 35, 0.95);
+}
+
+/* Particle effect container */
+.particle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(6, 182, 212, 0.6);
+    border-radius: 50%;
+    animation: float 20s infinite;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(100px, -100vh) scale(0);
+        opacity: 0;
+    }
+}
+
+.hint-btn {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #fbbf24;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    transition: all 0.3s;
+}
+
+.hint-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+    transform: translateY(-2px);
+}
+
+.hint-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 @media (max-width: 640px) {
     .quiz-container {
-        padding: 2rem 1.5rem;
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+        max-width: 100%;
     }
 
     .btn-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 1rem;
+        font-size: 0.9rem;
     }
 
     #question {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
     }
 
     .quiz-header {
         flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
     }
 
     #question-progress {
         text-align: left;
+        font-size: 0.8rem;
     }
 
     .user-info {
-        width: 100%;
+        width: auto;
+        max-width: 100%;
         text-align: center;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        flex-shrink: 1;
+    }
+
+    .user-info p {
+        margin: 0;
+    }
+
+    .difficulty {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .controls {
+        padding: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .hint-btn {
+        padding: 1rem;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
     }
 
     #final-score {
-        font-size: 1.1rem;
-        padding: 1.5rem;
+        font-size: 1rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .score-highlight {
+        font-size: 1.5em;
     }
 
     #username-screen h2,
     #results-screen h2 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+    }
+
+    #username-screen p {
+        font-size: 0.9rem;
+    }
+
+    #username-input,
+    .category-select {
+        font-size: 0.95rem;
+        padding: 0.9rem;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        font-size: 0.85rem;
+        padding: 1rem;
+    }
+
+    label {
+        font-size: 0.7rem;
+    }
+
+    .progress-bar {
+        height: 3px;
+    }
+
+    #history-list li {
+        padding: 0.85rem;
+        font-size: 0.9rem;
+    }
+
+    #score-history h3 {
+        font-size: 1rem;
     }
 }

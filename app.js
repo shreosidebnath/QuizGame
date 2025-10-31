@@ -134,46 +134,106 @@ function* questionGenerator(questions) {
     const medium = questions.filter(q => q.difficulty === 'medium');
     const hard = questions.filter(q => q.difficulty === 'hard');
     
-    let lastCorrect = null;
+    console.log(`Question pool - Easy: ${easy.length}, Medium: ${medium.length}, Hard: ${hard.length}`);
     
-    if (medium.length > 0) {
-        lastCorrect = yield medium.shift();
+    let consecutiveCorrect = 0;
+    let consecutiveMediumCorrect = 0;
+    let currentDifficulty = 'easy';
+    let lastAnswer = null;
+    
+    // Always start with easy question
+    if (easy.length > 0) {
+        const question = easy.shift();
+        console.log(`Starting with EASY question`);
+        lastAnswer = yield question;
+        
+        if (lastAnswer === true) {
+            consecutiveCorrect = 1;
+        } else {
+            consecutiveCorrect = 0;
+        }
     }
     
+    // Continue with remaining questions
     while (easy.length > 0 || medium.length > 0 || hard.length > 0) {
-        let nextQuestion;
+        let nextQuestion = null;
         
-        if (lastCorrect === true) {
-            if (hard.length > 0) {
-                nextQuestion = hard.shift();
-            } else if (medium.length > 0) {
-                nextQuestion = medium.shift();
-            } else {
-                nextQuestion = easy.shift();
+        if (lastAnswer === true) {
+            consecutiveCorrect++;
+            
+            // Update medium streak if we're in medium difficulty
+            if (currentDifficulty === 'medium') {
+                consecutiveMediumCorrect++;
             }
-        } 
-        else if (lastCorrect === false) {
-            if (easy.length > 0) {
-                nextQuestion = easy.shift();
-            } else if (medium.length > 0) {
-                nextQuestion = medium.shift();
+            
+            console.log(`✓ Correct! Streak: ${consecutiveCorrect}, Difficulty: ${currentDifficulty}, Medium streak: ${consecutiveMediumCorrect}`);
+            
+            // Progress to harder difficulties based on performance
+            if (currentDifficulty === 'easy' && consecutiveCorrect >= 2) {
+                // Need 2 correct to move to medium
+                if (medium.length > 0) {
+                    currentDifficulty = 'medium';
+                    consecutiveMediumCorrect = 0;
+                    nextQuestion = medium.shift();
+                    console.log(`→ Moving to MEDIUM difficulty`);
+                } else {
+                    nextQuestion = easy.shift() || hard.shift();
+                }
+            } else if (currentDifficulty === 'medium' && consecutiveMediumCorrect >= 3) {
+                // Need 3 correct mediums to move to hard
+                if (hard.length > 0) {
+                    currentDifficulty = 'hard';
+                    nextQuestion = hard.shift();
+                    console.log(`→ Moving to HARD difficulty`);
+                } else {
+                    nextQuestion = medium.shift() || easy.shift();
+                }
             } else {
-                nextQuestion = hard.shift();
+                // Stay at current difficulty
+                if (currentDifficulty === 'easy' && easy.length > 0) {
+                    nextQuestion = easy.shift();
+                } else if (currentDifficulty === 'medium' && medium.length > 0) {
+                    nextQuestion = medium.shift();
+                } else if (currentDifficulty === 'hard' && hard.length > 0) {
+                    nextQuestion = hard.shift();
+                } else {
+                    // Fallback to any available
+                    nextQuestion = easy.shift() || medium.shift() || hard.shift();
+                }
             }
-        } 
-        else {
-            if (medium.length > 0) {
-                nextQuestion = medium.shift();
-            } else if (easy.length > 0) {
-                nextQuestion = easy.shift();
+        } else if (lastAnswer === false) {
+            // Wrong answer - drop down difficulty
+            consecutiveCorrect = 0;
+            
+            console.log(`✗ Wrong! Dropping difficulty from ${currentDifficulty}`);
+            
+            if (currentDifficulty === 'hard') {
+                // Drop to medium
+                currentDifficulty = 'medium';
+                consecutiveMediumCorrect = 0;
+                nextQuestion = medium.shift() || easy.shift() || hard.shift();
+                console.log(`→ Dropped to MEDIUM`);
+            } else if (currentDifficulty === 'medium') {
+                // Drop to easy
+                currentDifficulty = 'easy';
+                consecutiveMediumCorrect = 0;
+                nextQuestion = easy.shift() || medium.shift() || hard.shift();
+                console.log(`→ Dropped to EASY`);
             } else {
-                nextQuestion = hard.shift();
+                // Already at easy, stay there
+                nextQuestion = easy.shift() || medium.shift() || hard.shift();
+                console.log(`→ Staying at EASY`);
             }
+        } else {
+            // Should not happen, but fallback
+            nextQuestion = easy.shift() || medium.shift() || hard.shift();
         }
         
         if (nextQuestion) {
-            lastCorrect = yield nextQuestion;
+            console.log(`Next question [${nextQuestion.difficulty.toUpperCase()}]`);
+            lastAnswer = yield nextQuestion;
         } else {
+            console.log('No more questions available');
             break;
         }
     }
@@ -200,6 +260,7 @@ const historyList = document.getElementById('history-list');
 const questionProgress = document.getElementById('question-progress');
 const progressFill = document.getElementById('progress-fill');
 const errorMessage = document.getElementById('error-message');
+const hintBtn = document.getElementById('hint-btn');
 
 class QuizApp {
     constructor() {
@@ -209,14 +270,20 @@ class QuizApp {
         this.user = null;
         this.selectedCategory = '';
         this.categoryName = 'Mixed';
+        this.correctStreak = 0;
+        this.hintsRemaining = 3;
+        this.usedHintOnCurrentQuestion = false;
 
         this.handleAnswerClick = this.handleAnswerClick.bind(this);
         this.startQuiz = this.startQuiz.bind(this);
         this.restartQuiz = this.restartQuiz.bind(this);
         this.retryQuiz = this.retryQuiz.bind(this);
         this.backToHome = this.backToHome.bind(this);
+        this.use5050Hint = this.use5050Hint.bind(this);
         
         this.setupEventListeners();
+        this.initSpotlightEffect();
+        this.createParticles();
     }
 
     setupEventListeners() {
@@ -224,6 +291,94 @@ class QuizApp {
         restartBtn.addEventListener('click', this.restartQuiz);
         retryBtn.addEventListener('click', this.retryQuiz);
         backBtn.addEventListener('click', this.backToHome);
+        hintBtn.addEventListener('click', this.use5050Hint);
+    }
+
+    // Spotlight and grid effect that follows mouse
+    initSpotlightEffect() {
+        const containers = document.querySelectorAll('.quiz-container');
+        
+        containers.forEach(container => {
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                container.style.setProperty('--mouse-x', `${x}%`);
+                container.style.setProperty('--mouse-y', `${y}%`);
+            });
+        });
+    }
+
+    // Create floating particles in background
+    createParticles() {
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'particle-container';
+        document.body.appendChild(particleContainer);
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 20}s`;
+            particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+            
+            // Random colors for particles
+            const colors = [
+                'rgba(6, 182, 212, 0.6)',    // cyan
+                'rgba(236, 72, 153, 0.6)',   // pink
+                'rgba(0, 255, 157, 0.6)'     // green
+            ];
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 10px ${colors[Math.floor(Math.random() * colors.length)]}`;
+            
+            particleContainer.appendChild(particle);
+        }
+    }
+
+    use5050Hint() {
+        if (this.hintsRemaining <= 0 || this.usedHintOnCurrentQuestion) {
+            return;
+        }
+
+        const buttons = Array.from(answerButtonsEl.children);
+        const correctButton = buttons.find(btn => 
+            this.currentQuestion.isCorrectAnswer(btn.innerText)
+        );
+        
+        const incorrectButtons = buttons.filter(btn => 
+            !this.currentQuestion.isCorrectAnswer(btn.innerText)
+        );
+
+        // Remove 2 incorrect answers
+        const toRemove = incorrectButtons.slice(0, 2);
+        toRemove.forEach(btn => {
+            btn.style.opacity = '0.3';
+            btn.style.pointerEvents = 'none';
+            btn.style.textDecoration = 'line-through';
+        });
+
+        this.hintsRemaining--;
+        this.usedHintOnCurrentQuestion = true;
+        this.updateHintButton();
+    }
+
+    updateHintButton() {
+        const hintBtn = document.getElementById('hint-btn');
+        if (hintBtn) {
+            hintBtn.innerText = `💡 50/50 Hint (${this.hintsRemaining} left)`;
+            if (this.hintsRemaining <= 0) {
+                hintBtn.disabled = true;
+                hintBtn.style.opacity = '0.4';
+            } else if (this.usedHintOnCurrentQuestion) {
+                hintBtn.disabled = true;
+                hintBtn.style.opacity = '0.4';
+            } else {
+                hintBtn.disabled = false;
+                hintBtn.style.opacity = '1';
+            }
+        }
     }
 
     async startQuiz() {
@@ -236,6 +391,8 @@ class QuizApp {
         this.selectedCategory = categorySelect.value;
         this.categoryName = categorySelect.options[categorySelect.selectedIndex].text;
         this.user = new User(username);
+        this.hintsRemaining = 3;
+        this.correctStreak = 0;
         currentUserEl.innerText = this.user.username;
 
         this.showScreen(loadingScreen);
@@ -281,6 +438,8 @@ class QuizApp {
         const questionInfo = question.displayInfo.call(question, "Current Question");
         console.log(questionInfo);
 
+        this.usedHintOnCurrentQuestion = false;
+
         questionEl.innerText = question.text;
         difficultyIndicator.innerText = `${question.difficulty.toUpperCase()}`;
         difficultyIndicator.className = `difficulty ${question.difficulty}`;
@@ -300,6 +459,9 @@ class QuizApp {
             answerButtonsEl.appendChild(button);
         });
         scoreEl.innerText = this.quiz.score;
+
+        // Update hint button
+        this.updateHintButton();
     }
 
     handleAnswerClick(event) {
@@ -309,13 +471,69 @@ class QuizApp {
         const isCorrect = this.currentQuestion.isCorrectAnswer(answer);
         this.quiz.checkAnswer(isCorrect);
         
+        // Track streak silently
+        if (isCorrect) {
+            this.correctStreak++;
+        } else {
+            this.correctStreak = 0;
+        }
+        
         this.disableAllButtons();
         this.highlightAnswers();
+        
+        // Add celebratory effect for correct answers
+        if (isCorrect) {
+            this.createSuccessEffect(selectedButton);
+        }
         
         this.quiz.nextQuestion();
         scoreEl.innerText = this.quiz.score;
         
         setTimeout(() => this.showNextQuestion(isCorrect), 1500);
+    }
+
+    createSuccessEffect(button) {
+        const rect = button.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 12; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.left = `${centerX}px`;
+            particle.style.top = `${centerY}px`;
+            particle.style.width = '6px';
+            particle.style.height = '6px';
+            particle.style.borderRadius = '50%';
+            particle.style.background = '#00ff9d';
+            particle.style.boxShadow = '0 0 10px #00ff9d';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '1000';
+            
+            const angle = (Math.PI * 2 * i) / 12;
+            const velocity = 100 + Math.random() * 50;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity;
+            
+            document.body.appendChild(particle);
+            
+            let x = 0, y = 0;
+            const animate = () => {
+                x += vx * 0.016;
+                y += vy * 0.016 + 200 * 0.016; // gravity
+                
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+                particle.style.opacity = Math.max(0, 1 - y / 300);
+                
+                if (parseFloat(particle.style.opacity) > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    particle.remove();
+                }
+            };
+            
+            animate();
+        }
     }
 
     disableAllButtons() {
@@ -346,10 +564,27 @@ class QuizApp {
         this.showScreen(resultsScreen);
         
         const percentage = Math.round((this.quiz.score / this.quiz.questions.length) * 100);
+        
+        // Positive messages based on score
+        let encouragement = '';
+        if (percentage === 100) {
+            encouragement = "Perfect score! You're a genius! 🏆";
+        } else if (percentage >= 80) {
+            encouragement = "Outstanding performance! 🌟";
+        } else if (percentage >= 60) {
+            encouragement = "Great job! You're doing awesome! 🎉";
+        } else if (percentage >= 40) {
+            encouragement = "Good effort! Keep practicing! 💪";
+        } else {
+            encouragement = "Every quiz makes you smarter! Try again! 🚀";
+        }
+
         finalScoreEl.innerHTML = `
             <strong>${this.user.username}</strong>, your final score is 
             <span class="score-highlight">${this.quiz.score}/${this.quiz.questions.length}</span> 
             (${percentage}%)
+            <br><br>
+            <span style="font-size: 1.1em; color: #00ff9d;">${encouragement}</span>
         `;
         
         this.displayScoreHistory();
@@ -382,6 +617,8 @@ class QuizApp {
         this.quiz = null;
         this.questionIterator = null;
         this.currentQuestion = null;
+        this.correctStreak = 0;
+        this.hintsRemaining = 3;
     }
 }
 
