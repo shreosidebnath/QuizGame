@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENG 513 Quiz</title>
+    <title>Quiz Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- username entry screen -->
     <div id="username-screen" class="quiz-container">
-        <h2>Welcome to the Ultimate Quiz!</h2>
+        <h2>Welcome to the Quiz Game</h2>
         <p>Enter your username to begin:</p>
         <input type="text" id="username-input" placeholder="Enter username" />
-        
-        <!-- category dropdown for user selection -->
         <label for="category-select">Choose a category:</label>
         <select id="category-select" class="category-select">
             <option value="">Any Category</option>
@@ -31,13 +28,11 @@
         <button id="start-btn" class="btn primary-btn">Start Quiz</button>
     </div>
 
-    <!-- loading screen shown while fetching questions from API -->
     <div id="loading-screen" class="quiz-container" style="display: none;">
         <div class="loader"></div>
         <p>Loading questions...</p>
     </div>
 
-    <!-- error screen with retry option if API call fails -->
     <div id="error-screen" class="quiz-container" style="display: none;">
         <h2>Oops!</h2>
         <p id="error-message">Failed to load questions. Please try again.</p>
@@ -45,10 +40,8 @@
         <button id="back-btn" class="btn secondary-btn">Back to Home</button>
     </div>
 
-    <!-- main quiz screen where questions are displayed -->
     <div id="quiz-screen" class="quiz-container" style="display: none;">
         <div id="quiz">
-            <!-- header showing user info and progress -->
             <div class="quiz-header">
                 <div class="user-info">
                     <p><span id="current-user">Guest</span></p>
@@ -61,26 +54,21 @@
                 </div>
             </div>
             
-            <!-- question text and difficulty badge -->
             <h2 id="question">Question Text</h2>
             <p id="difficulty-indicator" class="difficulty"></p>
             
-            <!-- answer buttons grid -->
             <div id="answer-buttons" class="btn-grid"></div>
             
-            <!-- score display -->
             <div class="controls">
                 <p>Score: <span id="score">0</span></p>
             </div>
         </div>
     </div>
 
-    <!-- results screen showing final sore and history -->
     <div id="results-screen" class="quiz-container" style="display: none;">
         <h2>Quiz Complete!</h2>
         <p id="final-score"></p>
         
-        <!-- score history from localstorage -->
         <div id="score-history">
             <h3>Your Score History</h3>
             <ul id="history-list"></ul>

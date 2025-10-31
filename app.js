@@ -1,4 +1,3 @@
-// question class holds each question's data and checks answers
 class Question {
     constructor(text, choices, answer, difficulty, category) {
         this.text = text; 
@@ -12,13 +11,11 @@ class Question {
         return this.answer === choice;
     }
 
-    // method used to demo 'call' later
     displayInfo(prefix) {
         return `${prefix}: ${this.text} [${this.difficulty}]`;
     }
 }
 
-// quiz class manages the overall quiz state and scoring
 class Quiz {
     constructor(questions) {
         this.score = 0;
@@ -50,7 +47,6 @@ class Quiz {
         return this.questionIndex === this.questions.length;
     }
 
-    // method used to demo apply later
     calculateStats(...args) {
         const total = args.reduce((sum, val) => sum + val, 0);
         return {
@@ -60,7 +56,6 @@ class Quiz {
     }
 }
 
-// user class stores username and score history using localStorage
 class User {
     constructor(username) {
         this.username = username;
@@ -99,7 +94,6 @@ class User {
     }
 }
 
-// async function to fetch questions from open trivia db api
 async function fetchQuestions(category = '') {
     const categoryParam = category ? `&category=${category}` : '';
     const url = `https://opentdb.com/api.php?amount=12&type=multiple${categoryParam}`;
@@ -115,7 +109,6 @@ async function fetchQuestions(category = '') {
             throw new Error('No questions available for this category');
         }
        
-        // decode html entities and create question objects
         const formattedQuestions = data.results.map(q => {
             const incorrectAnswers = q.incorrect_answers.map(ans => 
                 new DOMParser().parseFromString(ans, "text/html").body.textContent
@@ -136,25 +129,20 @@ async function fetchQuestions(category = '') {
     }
 }
 
-// generator function that adjusts difficulty based on previous answers
 function* questionGenerator(questions) {
-    // split questions by difficulty level
     const easy = questions.filter(q => q.difficulty === 'easy');
     const medium = questions.filter(q => q.difficulty === 'medium');
     const hard = questions.filter(q => q.difficulty === 'hard');
     
     let lastCorrect = null;
     
-    // start with a medium question
     if (medium.length > 0) {
         lastCorrect = yield medium.shift();
     }
     
-    // keep yilding questions based on if user got last one right
     while (easy.length > 0 || medium.length > 0 || hard.length > 0) {
         let nextQuestion;
         
-        //if right give them a harder question
         if (lastCorrect === true) {
             if (hard.length > 0) {
                 nextQuestion = hard.shift();
@@ -164,7 +152,6 @@ function* questionGenerator(questions) {
                 nextQuestion = easy.shift();
             }
         } 
-        // if wrong give them an easier question
         else if (lastCorrect === false) {
             if (easy.length > 0) {
                 nextQuestion = easy.shift();
@@ -174,7 +161,6 @@ function* questionGenerator(questions) {
                 nextQuestion = hard.shift();
             }
         } 
-        // first question or default to medium
         else {
             if (medium.length > 0) {
                 nextQuestion = medium.shift();
@@ -193,7 +179,6 @@ function* questionGenerator(questions) {
     }
 }
 
-// grab all the dom elements we need
 const usernameScreen = document.getElementById('username-screen');
 const loadingScreen = document.getElementById('loading-screen');
 const errorScreen = document.getElementById('error-screen');
@@ -216,7 +201,6 @@ const questionProgress = document.getElementById('question-progress');
 const progressFill = document.getElementById('progress-fill');
 const errorMessage = document.getElementById('error-message');
 
-// main app class that controls everything
 class QuizApp {
     constructor() {
         this.quiz = null;
@@ -226,7 +210,6 @@ class QuizApp {
         this.selectedCategory = '';
         this.categoryName = 'Mixed';
 
-        // using bind to maintain 'this' context in event handlers
         this.handleAnswerClick = this.handleAnswerClick.bind(this);
         this.startQuiz = this.startQuiz.bind(this);
         this.restartQuiz = this.restartQuiz.bind(this);
@@ -236,7 +219,6 @@ class QuizApp {
         this.setupEventListeners();
     }
 
-    // attach all button click listeners
     setupEventListeners() {
         startBtn.addEventListener('click', this.startQuiz);
         restartBtn.addEventListener('click', this.restartQuiz);
@@ -244,7 +226,6 @@ class QuizApp {
         backBtn.addEventListener('click', this.backToHome);
     }
 
-    // starts the quiz by fetching questions and setting up user
     async startQuiz() {
         const username = usernameInput.value.trim();
         if (!username) {
@@ -279,7 +260,6 @@ class QuizApp {
         this.showScreen(usernameScreen);
     }
 
-    // hides all screens and shows the one we want
     showScreen(screen) {
         [usernameScreen, loadingScreen, errorScreen, quizScreen, resultsScreen].forEach(s => {
             s.style.display = 'none';
@@ -287,7 +267,6 @@ class QuizApp {
         screen.style.display = 'block';
     }
 
-    // gets next question from generator and displays it
     showNextQuestion(wasCorrect = null) {
         const next = this.questionIterator.next(wasCorrect);
         if (!next.done) {
@@ -298,9 +277,7 @@ class QuizApp {
         }
     }
 
-    // renders the question text, choices, and progress
     displayQuestion(question) {
-        // using call to invoke displayInfo with specific context
         const questionInfo = question.displayInfo.call(question, "Current Question");
         console.log(questionInfo);
 
@@ -308,15 +285,12 @@ class QuizApp {
         difficultyIndicator.innerText = `${question.difficulty.toUpperCase()}`;
         difficultyIndicator.className = `difficulty ${question.difficulty}`;
 
-        // update progress bar
         const current = this.quiz.questionIndex + 1;
         const total = this.quiz.questions.length;
         questionProgress.innerText = `Question ${current}/${total}`;
         const progressPercent = (current / total) * 100;
-        //call
         progressFill.style.width = `${progressPercent}%`;
         
-        // create answer buttons
         answerButtonsEl.innerHTML = ''; 
         question.choices.forEach(choice => {
             const button = document.createElement('button');
@@ -328,7 +302,6 @@ class QuizApp {
         scoreEl.innerText = this.quiz.score;
     }
 
-    // handles when user clicks an answer button
     handleAnswerClick(event) {
         const selectedButton = event.target;
         const answer = selectedButton.innerText;
@@ -342,18 +315,15 @@ class QuizApp {
         this.quiz.nextQuestion();
         scoreEl.innerText = this.quiz.score;
         
-        // delay before next question
         setTimeout(() => this.showNextQuestion(isCorrect), 1500);
     }
 
-    // prevents clicking buttons multiple times
     disableAllButtons() {
         Array.from(answerButtonsEl.children).forEach(button => {
             button.disabled = true;
         });
     }
 
-    // shows which answer was correct/incorrect
     highlightAnswers() {
         Array.from(answerButtonsEl.children).forEach(button => {
             if (this.currentQuestion.isCorrectAnswer(button.innerText)) {
@@ -364,9 +334,7 @@ class QuizApp {
         });
     }
     
-    // displays final score and history when quiz ends
     showResults() {
-        // using apply to pass arguments as array
         const stats = this.quiz.calculateStats.apply(
             this.quiz, 
             [this.quiz.correctAnswers, this.quiz.incorrectAnswers]
@@ -387,7 +355,6 @@ class QuizApp {
         this.displayScoreHistory();
     }
 
-    // shows all previous quiz attempts from localStorage
     displayScoreHistory() {
         historyList.innerHTML = '';
         const history = this.user.getScoreHistory();
@@ -409,7 +376,6 @@ class QuizApp {
         });
     }
 
-    // resets everything and goes back to start
     restartQuiz() {
         this.showScreen(usernameScreen);
         usernameInput.value = '';
@@ -419,5 +385,4 @@ class QuizApp {
     }
 }
 
-// fire up the app
 const app = new QuizApp();
